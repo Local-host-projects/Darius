@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Darius — talk once, reach a thousand</title>
+  <meta name="description" content="Spawn conversational agents that interview people and pour the answers into a living, queryable spreadsheet.">
+  <meta name="theme-color" content="#FAF6EE">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/icons/icon-192.png" type="image/png">
+  <link rel="apple-touch-icon" href="/icons/apple-touch-180.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Caveat:wght@600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+  <div id="app">
+    <div class="splash">
+      <div class="card splash-card">
+        <div class="win-dots"><i class="d red"></i><i class="d yellow"></i><i class="d green"></i></div>
+        <div class="wordmark big">DARIUS</div>
+        <p class="doodle">spinning up the booths…</p>
+      </div>
+    </div>
+  </div>
+  <div id="toast-zone"></div>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
+    }
+  </script>
+  <script type="module" src="/static/js/api.js"></script>
+  <script type="module" src="/static/js/app.js"></script>
+</body>
+</html>
