@@ -26,7 +26,7 @@ _load_env()
 SERVER_GEMINI_KEY = (os.environ.get("DARIUS_SERVER_AI_KEY")
                      or os.environ.get("DARIUS_SERVER_GEMINI_KEY", "")).strip()
 
-DEFAULT_MODEL = os.environ.get("DARIUS_DEFAULT_MODEL", "gemini-2.5-flash").strip()
+DEFAULT_MODEL = os.environ.get("DARIUS_DEFAULT_MODEL", "gemini-3.5-flash").strip()
 
 # Google AI Studio REST root. Override only for tests / API proxies.
 GEMINI_BASE = os.environ.get(

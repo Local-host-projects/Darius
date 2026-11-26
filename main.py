@@ -92,7 +92,7 @@ def get_settings(user: dict = Depends(auth.require_user)):
     return {
         "has_user_key": bool(key),
         "key_masked": (key[:6] + "…" + key[-4:]) if len(key) > 12 else ("set" if key else ""),
-        "model": user["model"] or config.DEFAULT_MODEL,
+        "model": ai.resolve_model(user),
         "server_key_active": bool(config.SERVER_GEMINI_KEY),
         "will_use": "your key" if key else ("server key" if config.SERVER_GEMINI_KEY
                                            else "nothing — set DARIUS_SERVER_AI_KEY"),
@@ -110,14 +110,16 @@ def put_settings(body: dict = Body(...), user: dict = Depends(auth.require_user)
 
 
 @app.post("/api/settings/test")
-def test_settings(user: dict = Depends(auth.require_user)):
-    key = ai.resolve_key(user)
-    model = ai.resolve_model(user)
+def test_settings(body: dict = Body(default={}), user: dict = Depends(auth.require_user)):
+    """Test unsaved key/model values without touching what's stored."""
+    key = str(body.get("gemini_key") or "").strip() or ai.resolve_key(user)
+    model = str(body.get("model") or "").strip() or ai.resolve_model(user)
     if not key:
         return {"ok": False, "error": "No key configured (add yours in Settings)"}
     try:
         ai.test_key(key, model)
-        source = "your Gemini key" if (user["gemini_key"] or "").strip() else "server key"
+        source = "your Gemini key" if str(body.get("gemini_key") or "").strip() else (
+            "your Gemini key" if (user["gemini_key"] or "").strip() else "server key")
         return {"ok": True, "model": model, "source": source}
     except ai.AIUnavailable as e:
         return {"ok": False, "error": str(e)}

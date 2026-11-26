@@ -1,13 +1,17 @@
 // Darius service worker — app shell cache-first, API always networked.
-const CACHE = 'darius-shell-v2';
+const CACHE = 'darius-shell-v5';
 const SHELL = [
   '/',
   '/static/css/styles.css',
   '/static/js/api.js',
+  '/static/js/icons.js',
+  '/static/js/ui.js',
   '/static/js/app.js',
   '/static/js/workspace.js',
   '/static/js/chat.js',
   '/manifest.webmanifest',
+  '/icons/logo.svg',
+  '/icons/favicon-64.png',
   '/icons/icon-192.png',
   '/icons/icon-512.png',
 ];

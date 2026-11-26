@@ -26,9 +26,22 @@ def resolve_key(user: dict | None) -> str | None:
     return config.SERVER_GEMINI_KEY or None
 
 
+# Google retires Gemini models over time. Old saved values are transparently
+# mapped to their current replacements so existing accounts keep working.
+LEGACY_MODELS = {
+    "gemini-2.5-flash": "gemini-3.5-flash",
+    "gemini-2.5-flash-lite": "gemini-3.5-flash-lite",
+    "gemini-2.5-pro": "gemini-3.5-flash",
+    "gemini-2.0-flash": "gemini-3.5-flash",
+    "gemini-2.0-flash-lite": "gemini-3.5-flash-lite",
+    "gemini-1.5-flash": "gemini-3.5-flash",
+    "gemini-1.5-pro": "gemini-3.5-flash",
+}
+
+
 def resolve_model(user: dict | None) -> str:
     m = ((user or {}).get("model") or "").strip()
-    return m or config.DEFAULT_MODEL
+    return LEGACY_MODELS.get(m, m or config.DEFAULT_MODEL)
 
 
 def _extract_json(text: str):
@@ -78,6 +91,14 @@ def generate(key: str, model: str, system: str, user: str, temp: float = 0.7,
     if r.status_code == 429:
         raise AIUnavailable("Gemini free-tier limit hit (429) — try again shortly, "
                             "or switch model in Settings")
+    if r.status_code in (404, 503):
+        try:
+            detail = str((r.json().get("error") or {}).get("message") or "").strip()
+        except (ValueError, AttributeError):
+            detail = ""
+        if r.status_code == 503:
+            raise AIUnavailable("Gemini is busy right now (503) — try again in a moment")
+        raise AIUnavailable(detail or "That Gemini model is unavailable — pick another in Settings")
     if r.status_code >= 400:
         raise AIUnavailable(f"Gemini error {r.status_code}")
     data = r.json()
@@ -165,7 +186,9 @@ Return JSON:
 }
 
 Rules: 5-9 fields, at most 3 required; 0-3 computeds; keys lowercase snake_case;
-qualitative over bureaucratic — the owner is a normal person, not a corporation."""
+qualitative over bureaucratic — the owner is a normal person, not a corporation.
+Always make the FIRST field a required text field with key "name" and label "Name" so
+records can address people by name instead of a guest number."""
 
 
 def draft_agent(ctx: Ctx, name: str, brief: str) -> dict:
@@ -174,6 +197,14 @@ def draft_agent(ctx: Ctx, name: str, brief: str) -> dict:
     out.setdefault("computeds", [])
     out.setdefault("personality", "")
     out.setdefault("opening_message", "")
+    # Keep records human-readable even if the model forgets the name field.
+    if not any(str(f.get("key", "")).lower() in ("name", "your_name", "full_name")
+               for f in out["fields"] if isinstance(f, dict)):
+        out["fields"].insert(0, {
+            "key": "name", "label": "Name", "type": "text",
+            "description": "The person's name, as they introduce themselves",
+            "required": True, "options": [],
+        })
     return out
 
 

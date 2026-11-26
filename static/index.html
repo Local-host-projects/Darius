@@ -5,9 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Darius — talk once, reach a thousand</title>
   <meta name="description" content="Spawn conversational agents that interview people and pour the answers into a living, queryable spreadsheet.">
-  <meta name="theme-color" content="#FAF6EE">
+  <meta name="theme-color" content="#f7f2e7">
+  <meta name="color-scheme" content="light">
   <link rel="manifest" href="/manifest.webmanifest">
-  <link rel="icon" href="/icons/icon-192.png" type="image/png">
+  <link rel="icon" href="/icons/favicon-64.png" sizes="64x64" type="image/png">
+  <link rel="icon" href="/icons/logo.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="/icons/apple-touch-180.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -16,12 +18,11 @@
 </head>
 <body>
   <div id="app">
-    <div class="splash">
-      <div class="card splash-card">
-        <div class="win-dots"><i class="d red"></i><i class="d yellow"></i><i class="d green"></i></div>
-        <div class="wordmark big">DARIUS</div>
-        <p class="doodle">spinning up the booths…</p>
-      </div>
+    <div class="boot">
+      <img class="boot-mark" src="/icons/logo.svg" alt="" width="72" height="72">
+      <div class="boot-word">Darius</div>
+      <div class="boot-line" aria-hidden="true"><span></span></div>
+      <p>Opening your workspace</p>
     </div>
   </div>
   <div id="toast-zone"></div>
@@ -30,7 +31,6 @@
       window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
     }
   </script>
-  <script type="module" src="/static/js/api.js"></script>
   <script type="module" src="/static/js/app.js"></script>
 </body>
 </html>

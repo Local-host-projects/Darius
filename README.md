@@ -1,4 +1,4 @@
-# Darius — talk once, reach a thousand 🎣
+# Darius — talk once, reach a thousand
 
 **Spawn conversational agents that interview people at scale and pour their answers into a
 living, queryable spreadsheet — then talk back.**
@@ -14,6 +14,8 @@ No build step, no Node, no queues — `uvicorn main:app` and you're live.
 
 ```bash
 bash run.sh          # installs deps + serves on http://localhost:8000
+# Windows
+run.bat
 # or
 pip install -r requirements.txt
 uvicorn main:app --host 0.0.0.0 --port 8000
@@ -32,24 +34,25 @@ One provider, no fallbacks or demo mode. Two key sources, in priority order:
 
 ```env
 DARIUS_SERVER_AI_KEY=AQ.…        # your Google AI Studio key
-DARIUS_DEFAULT_MODEL=gemini-2.5-flash
+DARIUS_DEFAULT_MODEL=gemini-3.5-flash
 ```
 
-**Model**: `gemini-2.5-flash` is the free-tier default (fast, generous daily quota). If you
-need more free headroom, set `DARIUS_DEFAULT_MODEL=gemini-2.5-flash-lite`; change it per user
-in Settings too. **Test it** button pings Gemini and tells you whether it used your key or the
-server's. When the free-tier quota is hit the UI says so plainly (429) — nothing is faked.
+**Model**: `gemini-3.5-flash` is the default (fast, strong at structured extraction). For more
+free headroom, set `DARIUS_DEFAULT_MODEL=gemini-3.5-flash-lite`; change it per user in Settings
+too. Legacy `gemini-2.5-*` names are retired upstream — Darius maps them to the current models.
+**Test it** pings Gemini and tells you whether it used your key or the server's. When quota is
+hit the UI says so plainly (429) — nothing is faked.
 
 ## Deploy to Railway
 
-The repo is Railway-ready: `railway.json` (Nixpacks + `uvicorn` on `$PORT`) sits next to
-`requirements.txt` in `darius/`.
+The repo is Railway-ready: `railway.json` (Nixpacks + `uvicorn` on `$PORT`) sits at the repo
+root, next to `requirements.txt`.
 
-1. Push the project to GitHub. In Railway: **New Project → Deploy from GitHub repo**, and set
-   **Root Directory = `darius`** (that's where `railway.json` lives).
+1. Push the project to GitHub. In Railway: **New Project → Deploy from GitHub repo** and leave
+   **Root Directory** at the repository root.
 2. Add variables (Railway → your service → Variables):
    - `DARIUS_SERVER_AI_KEY` — your Google AI Studio key (required)
-   - `DARIUS_DEFAULT_MODEL` — optional, defaults to `gemini-2.5-flash`
+   - `DARIUS_DEFAULT_MODEL` — optional, defaults to `gemini-3.5-flash`
 3. **Attach a volume** (Railway → service → Volumes, mount path `/data`) and set
    `DARIUS_DB=/data/darius.db`. Without it, SQLite resets on every redeploy.
 4. Deploy. Generate a domain (Settings → Networking) — the PWA is served from the same origin.
@@ -63,7 +66,9 @@ are fine). If a call fails the app surfaces Google's reason in the UI instead of
 |---|---|
 | Spawn agent + shareable link | Dashboard → spawn → Setup tab ("share the net") |
 | Schema drafting from a plain-language brief | Setup → "re-draft with AI" / at creation |
+| Mandatory name capture (people, not guest numbers) | Schema (first required field) → Records + Inbox |
 | Semi-structured interviews (one question at a time, adaptive) | Public chat `/c/{slug}` |
+| Downloadable chat pass (reopens the exact thread, any device) | Public chat → first-visit gate / "Save chat pass" |
 | Chat → structured records (live extraction) | Records tab |
 | Intelligent spreadsheet: computed qualitative columns | Setup (logic editor) + Records ("re-grade") |
 | Natural-language query = semantic zoom (all → segment → person) | Records query bar |
@@ -91,7 +96,9 @@ darius/
 └── static/            # SPA (vanilla ES modules) + styles + manifest + sw + icons
     ├── js/app.js        # router, login, dashboard, settings
     ├── js/workspace.js  # setup / records / inbox / broadcasts
-    ├── js/chat.js       # public 1:1 chat
+    ├── js/chat.js       # public 1:1 chat + downloadable chat pass
+    ├── js/icons.js      # inline icon set + octopus logo
+    ├── js/ui.js         # shared avatars, sheets, empty states
     └── css/styles.css   # scrapbook / neo-editorial aesthetic
 ```
 
